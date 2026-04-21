@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ドット絵変換ツール - 色調整版</title>
+    <title>ドット絵変換ツール</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
@@ -14,9 +14,10 @@
 </head>
 <body class="bg-zinc-950 text-white">
     <div class="max-w-7xl mx-auto p-8">
-        <h1 class="text-4xl font-bold mb-10">ドット絵変換ツール <span class="text-cyan-400">色調整版</span></h1>
+        <h1 class="text-4xl font-bold mb-10">ドット絵変換ツール <span class="text-cyan-400">使用ドット数 多い順</span></h1>
 
         <div class="flex gap-8">
+            <!-- 左: パレット -->
             <div class="w-96 bg-zinc-900 rounded-3xl p-6 border border-zinc-800">
                 <h2 class="text-xl font-semibold mb-4">🎨 16色パレット（調整版）</h2>
                 <button onclick="loadDefaultPalette()" 
@@ -26,8 +27,8 @@
                 <div id="palette-list" class="grid grid-cols-4 gap-4"></div>
             </div>
 
+            <!-- メイン -->
             <div class="flex-1 space-y-8">
-                <!-- アップロードエリア（省略せず） -->
                 <div class="bg-zinc-900 rounded-3xl p-6 border border-zinc-800">
                     <h2 class="text-lg font-semibold mb-4">📤 画像アップロード</h2>
                     <div id="upload-area" class="border-2 border-dashed border-zinc-700 hover:border-cyan-400 rounded-3xl p-16 text-center cursor-pointer min-h-[200px]">
@@ -38,7 +39,6 @@
                     </div>
                 </div>
 
-                <!-- クロップエリア（前回と同じ） -->
                 <div id="crop-section" class="hidden bg-zinc-900 rounded-3xl p-6 border border-zinc-800">
                     <h2 class="text-lg font-semibold mb-4">✂️ 画像をトリミング・調整</h2>
                     <div class="flex gap-6 mb-6 flex-wrap">
@@ -85,9 +85,10 @@
                 <div id="result-area" class="hidden bg-zinc-900 rounded-3xl p-6 border border-zinc-800">
                     <h2 class="text-2xl font-bold mb-6">変換結果</h2>
                     <div class="flex gap-10">
+                        <!-- 使用した色とドット数（多い順） -->
                         <div class="w-96">
-                            <h3 class="font-semibold mb-4 text-lg">使用した色とドット数</h3>
-                            <div id="used-colors-list" class="space-y-3 max-h-[520px] overflow-y-auto"></div>
+                            <h3 class="font-semibold mb-4 text-lg">使用した色とドット数（多い順）</h3>
+                            <div id="used-colors-list" class="space-y-3 max-h-[520px] overflow-y-auto pr-2"></div>
                             <div class="mt-6 pt-4 border-t border-zinc-700 text-sm">
                                 <div class="flex justify-between">
                                     <span class="text-zinc-400">合計ドット数</span>
@@ -95,11 +96,15 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- プレビュー -->
                         <div class="flex-1">
                             <canvas id="pixel-canvas" class="bg-zinc-950 rounded-2xl mx-auto"></canvas>
                         </div>
                     </div>
-                    <button onclick="downloadPNG()" class="mt-10 w-full py-4 bg-gradient-to-r from-amber-400 to-yellow-300 text-zinc-900 font-bold rounded-3xl text-lg">
+
+                    <button onclick="downloadPNG()" 
+                            class="mt-10 w-full py-4 bg-gradient-to-r from-amber-400 to-yellow-300 text-zinc-900 font-bold rounded-3xl text-lg">
                         PNGダウンロード（ガイド線あり）
                     </button>
                 </div>
@@ -113,7 +118,6 @@
         let palette = [];
         let paletteWithNames = [];
 
-        // ==================== ここを調整したパレット ====================
         const defaultPalette = [
             { name: "黒①",     hex: "#0a0a0a" },
             { name: "暗影",     hex: "#1f1f1f" },
@@ -137,7 +141,6 @@
             palette = defaultPalette.map(p => p.hex);
             paletteWithNames = [...defaultPalette];
             renderPalette();
-            alert("色を少し調整した16色パレットを読み込みました！");
         }
 
         function renderPalette() {
@@ -157,7 +160,6 @@
             });
         }
 
-        // 以降の関数は前回と同じ（アップロード、変換、使用色表示、ガイド線など）
         function handleImageUpload(file) {
             if (!file || !file.type.startsWith("image/")) return alert("画像ファイルを選択してください");
             const reader = new FileReader();
@@ -183,6 +185,7 @@
             reader.readAsDataURL(file);
         }
 
+        // アップロードイベント（省略せず）
         document.getElementById("upload-area").addEventListener("click", () => document.getElementById("image-upload").click());
         document.getElementById("image-upload").addEventListener("change", e => {
             if (e.target.files[0]) handleImageUpload(e.target.files[0]);
@@ -266,21 +269,31 @@
             ctx.putImageData(imageData, 0, 0);
             resultCanvas = tempCanvas;
 
-            showUsedColors(colorCount, w * h);
+            showUsedColors(colorCount, w * h);   // 多い順で表示
             drawWithGrid(w, h);
             document.getElementById("result-area").classList.remove("hidden");
         }
 
+        // ====================== ここを修正：使用ドット数が多い順にソート ======================
         function showUsedColors(colorCount, totalDots) {
             const container = document.getElementById("used-colors-list");
             container.innerHTML = "";
 
-            paletteWithNames.forEach(item => {
+            // パレット情報を配列にしてソート準備
+            let usedList = paletteWithNames.map(item => {
                 const count = colorCount.get(item.hex) || 0;
-                if (count === 0) return;
+                return {
+                    name: item.name,
+                    hex: item.hex,
+                    count: count,
+                    percent: totalDots > 0 ? ((count / totalDots) * 100).toFixed(1) : 0
+                };
+            }).filter(item => item.count > 0);   // 使用されていない色は除外
 
-                const percent = ((count / totalDots) * 100).toFixed(1);
+            // ドット数が多い順（降順）にソート
+            usedList.sort((a, b) => b.count - a.count);
 
+            usedList.forEach(item => {
                 const div = document.createElement("div");
                 div.className = "flex items-center gap-4 bg-zinc-800 p-3 rounded-2xl";
                 div.innerHTML = `
@@ -290,8 +303,8 @@
                         <div class="font-mono text-xs text-zinc-400">${item.hex}</div>
                     </div>
                     <div class="text-right">
-                        <div class="font-bold text-lg">${count}</div>
-                        <div class="text-xs text-zinc-400">${percent}%</div>
+                        <div class="font-bold text-lg">${item.count.toLocaleString()}</div>
+                        <div class="text-xs text-zinc-400">${item.percent}%</div>
                     </div>
                 `;
                 container.appendChild(div);
@@ -300,6 +313,7 @@
             document.getElementById("total-dots").textContent = totalDots.toLocaleString() + " ドット";
         }
 
+        // ガイド線描画（変更なし）
         function drawWithGrid(w, h) {
             const canvas = document.getElementById("pixel-canvas");
             const scale = Math.max(1, Math.floor(520 / Math.max(w, h)));
