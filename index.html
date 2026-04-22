@@ -2,62 +2,68 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ドット絵変換ツール</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ドット絵変換ツール - 企業ロゴ向け</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
     <style>
         body { font-family: 'Noto Sans JP', system-ui, sans-serif; }
         canvas { image-rendering: pixelated; }
+        .swatch { transition: all 0.2s; }
     </style>
 </head>
-<body class="bg-zinc-950 text-white">
-    <div class="max-w-7xl mx-auto p-8">
-        <h1 class="text-4xl font-bold mb-10">ドット絵変換ツール <span class="text-cyan-400">使用ドット数 多い順</span></h1>
+<body class="bg-zinc-950 text-white min-h-screen">
+    <div class="max-w-7xl mx-auto p-4 md:p-8">
+        <h1 class="text-3xl md:text-4xl font-bold mb-8 text-center md:text-left">
+            ドット絵変換ツール <span class="text-cyan-400">24色・企業ロゴ向け</span>
+        </h1>
 
-        <div class="flex gap-8">
-            <!-- 左: パレット -->
-            <div class="w-96 bg-zinc-900 rounded-3xl p-6 border border-zinc-800">
-                <h2 class="text-xl font-semibold mb-4">🎨 16色パレット（調整版）</h2>
+        <div class="flex flex-col lg:flex-row gap-6">
+            <!-- パレット -->
+            <div class="w-full lg:w-96 bg-zinc-900 rounded-3xl p-5 border border-zinc-800">
+                <h2 class="text-lg font-semibold mb-4">🎨 24色パレット</h2>
                 <button onclick="loadDefaultPalette()" 
-                        class="w-full py-4 bg-gradient-to-r from-violet-500 to-cyan-400 rounded-2xl font-semibold mb-6 text-lg">
-                    パレットを読み込む
+                        class="w-full py-4 bg-gradient-to-r from-violet-500 to-cyan-400 rounded-2xl font-semibold mb-6">
+                    24色パレットを読み込む
                 </button>
-                <div id="palette-list" class="grid grid-cols-4 gap-4"></div>
+                <div id="palette-list" class="grid grid-cols-6 gap-3"></div>
             </div>
 
             <!-- メイン -->
-            <div class="flex-1 space-y-8">
-                <div class="bg-zinc-900 rounded-3xl p-6 border border-zinc-800">
-                    <h2 class="text-lg font-semibold mb-4">📤 画像アップロード</h2>
-                    <div id="upload-area" class="border-2 border-dashed border-zinc-700 hover:border-cyan-400 rounded-3xl p-16 text-center cursor-pointer min-h-[200px]">
+            <div class="flex-1 space-y-6">
+                <!-- アップロード -->
+                <div class="bg-zinc-900 rounded-3xl p-5 border border-zinc-800">
+                    <h2 class="text-lg font-semibold mb-3">📤 画像アップロード</h2>
+                    <div id="upload-area" 
+                         class="border-2 border-dashed border-zinc-700 hover:border-cyan-400 rounded-3xl p-10 md:p-16 text-center cursor-pointer min-h-[180px] flex items-center justify-center">
                         <input type="file" id="image-upload" accept="image/*" class="hidden">
                         <div id="upload-placeholder" class="text-zinc-400">
-                            画像をドラッグ＆ドロップ<br>または ここをクリック
+                            画像をドラッグ＆ドロップ<br>または タップして選択
                         </div>
                     </div>
                 </div>
 
-                <div id="crop-section" class="hidden bg-zinc-900 rounded-3xl p-6 border border-zinc-800">
-                    <h2 class="text-lg font-semibold mb-4">✂️ 画像をトリミング・調整</h2>
-                    <div class="flex gap-6 mb-6 flex-wrap">
+                <!-- クロップ -->
+                <div id="crop-section" class="hidden bg-zinc-900 rounded-3xl p-5 border border-zinc-800">
+                    <h2 class="text-lg font-semibold mb-4">✂️ トリミング・調整</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
                         <div>
-                            <label class="block text-xs text-zinc-400 mb-2">縦横比率</label>
-                            <select id="aspect-ratio" onchange="applyAspectRatio()" class="bg-zinc-800 text-white px-5 py-3 rounded-2xl text-lg">
+                            <label class="block text-xs text-zinc-400 mb-1">縦横比率</label>
+                            <select id="aspect-ratio" onchange="applyAspectRatio()" 
+                                    class="w-full bg-zinc-800 text-white px-4 py-3 rounded-2xl">
                                 <option value="1">1 : 1</option>
                                 <option value="16/9">16 : 9</option>
                                 <option value="9/16">9 : 16</option>
                                 <option value="4/3">4 : 3</option>
-                                <option value="3/4">3 : 4</option>
-                                <option value="8/5">8 : 5（64×40）</option>
+                                <option value="8/5">8 : 5</option>
                                 <option value="NaN" selected>自由</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs text-zinc-400 mb-2">横ドット数</label>
-                            <select id="dot-width" onchange="updateHeightFromRatio()" class="bg-zinc-800 text-white px-5 py-3 rounded-2xl text-lg">
-                                <option value="16">16</option>
+                            <label class="block text-xs text-zinc-400 mb-1">横ドット数</label>
+                            <select id="dot-width" onchange="updateHeightFromRatio()" 
+                                    class="w-full bg-zinc-800 text-white px-4 py-3 rounded-2xl">
                                 <option value="32" selected>32</option>
                                 <option value="48">48</option>
                                 <option value="64">64</option>
@@ -66,46 +72,50 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs text-zinc-400 mb-2">縦ドット数</label>
-                            <div id="dot-height-display" class="bg-zinc-800 px-6 py-3 rounded-2xl text-2xl font-mono text-center w-28">32</div>
+                            <label class="block text-xs text-zinc-400 mb-1">縦ドット数</label>
+                            <div id="dot-height-display" 
+                                 class="bg-zinc-800 px-4 py-3 rounded-2xl text-2xl font-mono text-center">32</div>
                         </div>
                     </div>
 
-                    <div class="relative bg-black rounded-2xl overflow-hidden" style="max-height: 520px;">
+                    <div class="relative bg-black rounded-2xl overflow-hidden" style="max-height: 480px;">
                         <img id="crop-image" class="max-w-full">
                     </div>
 
-                    <div class="flex gap-4 mt-6">
-                        <button onclick="resetCrop()" class="flex-1 py-4 border border-zinc-600 rounded-2xl hover:bg-zinc-800">リセット</button>
-                        <button onclick="applyCropAndConvert()" class="flex-1 py-4 bg-white text-zinc-900 rounded-2xl font-semibold">この範囲でドット絵に変換</button>
+                    <div class="flex gap-3 mt-6">
+                        <button onclick="resetCrop()" 
+                                class="flex-1 py-4 border border-zinc-600 rounded-2xl">リセット</button>
+                        <button onclick="applyCropAndConvert()" 
+                                class="flex-1 py-4 bg-white text-zinc-900 rounded-2xl font-semibold">ドット絵に変換</button>
                     </div>
                 </div>
 
-                <!-- 結果エリア -->
-                <div id="result-area" class="hidden bg-zinc-900 rounded-3xl p-6 border border-zinc-800">
+                <!-- 結果 -->
+                <div id="result-area" class="hidden bg-zinc-900 rounded-3xl p-5 border border-zinc-800">
                     <h2 class="text-2xl font-bold mb-6">変換結果</h2>
-                    <div class="flex gap-10">
-                        <!-- 使用した色とドット数（多い順） -->
-                        <div class="w-96">
-                            <h3 class="font-semibold mb-4 text-lg">使用した色とドット数（多い順）</h3>
-                            <div id="used-colors-list" class="space-y-3 max-h-[520px] overflow-y-auto pr-2"></div>
+                    <div class="flex flex-col lg:flex-row gap-8">
+                        <div class="lg:w-80 flex-shrink-0">
+                            <h3 class="font-semibold mb-4">使用した色（多い順）</h3>
+                            <div id="used-colors-list" class="space-y-3 max-h-[420px] overflow-y-auto"></div>
                             <div class="mt-6 pt-4 border-t border-zinc-700 text-sm">
                                 <div class="flex justify-between">
                                     <span class="text-zinc-400">合計ドット数</span>
                                     <span id="total-dots" class="font-mono font-bold"></span>
                                 </div>
+                                <div class="flex justify-between mt-2">
+                                    <span class="text-zinc-400">使用色数</span>
+                                    <span id="used-color-count" class="font-mono font-bold"></span>
+                                </div>
                             </div>
                         </div>
-
-                        <!-- プレビュー -->
                         <div class="flex-1">
-                            <canvas id="pixel-canvas" class="bg-zinc-950 rounded-2xl mx-auto"></canvas>
+                            <canvas id="pixel-canvas" class="bg-zinc-950 rounded-2xl w-full"></canvas>
                         </div>
                     </div>
 
                     <button onclick="downloadPNG()" 
-                            class="mt-10 w-full py-4 bg-gradient-to-r from-amber-400 to-yellow-300 text-zinc-900 font-bold rounded-3xl text-lg">
-                        PNGダウンロード（ガイド線あり）
+                            class="mt-8 w-full py-4 bg-gradient-to-r from-amber-400 to-yellow-300 text-zinc-900 font-bold rounded-3xl text-lg">
+                        📥 PNGダウンロード（ガイド線あり）
                     </button>
                 </div>
             </div>
@@ -115,30 +125,20 @@
     <script>
         let cropper = null;
         let resultCanvas = null;
-        let palette = [];
         let paletteWithNames = [];
 
         const defaultPalette = [
-            { name: "黒①",     hex: "#0a0a0a" },
-            { name: "暗影",     hex: "#1f1f1f" },
-            { name: "影",       hex: "#383838" },
-            { name: "中間影",   hex: "#5a5a5a" },
-            { name: "中間",     hex: "#8a8a8a" },
-            { name: "ライト",   hex: "#b8b8b8" },
-            { name: "白",       hex: "#f5f5f5" },
-            { name: "肌影",     hex: "#c88a5f" },
-            { name: "肌",       hex: "#e9b98a" },
-            { name: "赤",       hex: "#d93d3d" },
-            { name: "橙",       hex: "#ff8f3d" },
-            { name: "緑影",     hex: "#2e7a4f" },
-            { name: "緑",       hex: "#5cc46f" },
-            { name: "青",       hex: "#3a8cff" },
-            { name: "水色",     hex: "#6ed5ff" },
-            { name: "紫",       hex: "#a76eff" }
+            { name: "黒①", hex: "#0a0a0a" }, { name: "黒②", hex: "#1f1f1f" }, { name: "暗影", hex: "#2f2f2f" },
+            { name: "影", hex: "#454545" }, { name: "中間影", hex: "#6b6b6b" }, { name: "中間", hex: "#9a9a9a" },
+            { name: "ライト", hex: "#c8c8c8" }, { name: "白", hex: "#f0f0f0" },
+            { name: "肌影", hex: "#c88a5f" }, { name: "肌", hex: "#e9b98a" }, { name: "肌ハイ", hex: "#ffe8c8" },
+            { name: "赤", hex: "#d93d3d" }, { name: "赤深", hex: "#b22a2a" }, { name: "橙", hex: "#ff8f3d" },
+            { name: "緑影", hex: "#2e7a4f" }, { name: "緑", hex: "#5cc46f" }, { name: "黄緑", hex: "#a5e87a" },
+            { name: "青影", hex: "#2a5f9e" }, { name: "青", hex: "#3a8cff" }, { name: "水色", hex: "#6ed5ff" },
+            { name: "紫", hex: "#a76eff" }, { name: "紫淡", hex: "#c99cff" }, { name: "ピンク", hex: "#ff8ac4" }
         ];
 
         function loadDefaultPalette() {
-            palette = defaultPalette.map(p => p.hex);
             paletteWithNames = [...defaultPalette];
             renderPalette();
         }
@@ -150,18 +150,18 @@
                 const div = document.createElement("div");
                 div.className = "flex flex-col items-center text-center";
                 div.innerHTML = `
-                    <div class="w-14 h-14 rounded-2xl shadow-inner mb-1" style="background-color: ${item.hex}"></div>
-                    <div class="text-xs">
-                        ${item.name}<br>
-                        <span class="font-mono text-[10px] text-zinc-400">${item.hex}</span>
-                    </div>
+                    <div class="w-9 h-9 rounded-xl shadow-inner mb-1" style="background-color: ${item.hex}"></div>
+                    <div class="text-[9px] leading-tight">${item.name}</div>
                 `;
                 container.appendChild(div);
             });
         }
 
         function handleImageUpload(file) {
-            if (!file || !file.type.startsWith("image/")) return alert("画像ファイルを選択してください");
+            if (!file || !file.type.startsWith("image/")) {
+                alert("画像ファイルを選択してください");
+                return;
+            }
             const reader = new FileReader();
             reader.onload = function(e) {
                 document.getElementById("upload-area").classList.add("hidden");
@@ -185,15 +185,17 @@
             reader.readAsDataURL(file);
         }
 
-        // アップロードイベント（省略せず）
-        document.getElementById("upload-area").addEventListener("click", () => document.getElementById("image-upload").click());
+        // アップロードイベント
+        document.getElementById("upload-area").addEventListener("click", () => {
+            document.getElementById("image-upload").click();
+        });
         document.getElementById("image-upload").addEventListener("change", e => {
             if (e.target.files[0]) handleImageUpload(e.target.files[0]);
         });
 
         const uploadArea = document.getElementById("upload-area");
         uploadArea.addEventListener("dragover", e => { e.preventDefault(); uploadArea.style.borderColor = "#67e8f9"; });
-        uploadArea.addEventListener("dragleave", () => uploadArea.style.borderColor = "");
+        uploadArea.addEventListener("dragleave", () => { uploadArea.style.borderColor = ""; });
         uploadArea.addEventListener("drop", e => {
             e.preventDefault();
             uploadArea.style.borderColor = "";
@@ -254,43 +256,35 @@
                 const r = data[i], g = data[i+1], b = data[i+2];
 
                 for (let col of paletteRgb) {
-                    const dist = (r-col.r)**2 + (g-col.g)**2 + (b-col.b)**2;
+                    const dist = (r - col.r)**2 + (g - col.g)**2 + (b - col.b)**2;
                     if (dist < minDist) {
                         minDist = dist;
                         best = col;
                     }
                 }
                 data[i] = best.r; data[i+1] = best.g; data[i+2] = best.b;
-
-                const key = best.hex;
-                colorCount.set(key, (colorCount.get(key) || 0) + 1);
+                colorCount.set(best.hex, (colorCount.get(best.hex) || 0) + 1);
             }
 
             ctx.putImageData(imageData, 0, 0);
             resultCanvas = tempCanvas;
 
-            showUsedColors(colorCount, w * h);   // 多い順で表示
+            showUsedColors(colorCount, w * h);
             drawWithGrid(w, h);
             document.getElementById("result-area").classList.remove("hidden");
         }
 
-        // ====================== ここを修正：使用ドット数が多い順にソート ======================
         function showUsedColors(colorCount, totalDots) {
             const container = document.getElementById("used-colors-list");
             container.innerHTML = "";
 
-            // パレット情報を配列にしてソート準備
-            let usedList = paletteWithNames.map(item => {
-                const count = colorCount.get(item.hex) || 0;
-                return {
-                    name: item.name,
-                    hex: item.hex,
-                    count: count,
-                    percent: totalDots > 0 ? ((count / totalDots) * 100).toFixed(1) : 0
-                };
-            }).filter(item => item.count > 0);   // 使用されていない色は除外
+            let usedList = paletteWithNames.map(item => ({
+                name: item.name,
+                hex: item.hex,
+                count: colorCount.get(item.hex) || 0,
+                percent: totalDots > 0 ? ((colorCount.get(item.hex) || 0) / totalDots * 100).toFixed(1) : 0
+            })).filter(item => item.count > 0);
 
-            // ドット数が多い順（降順）にソート
             usedList.sort((a, b) => b.count - a.count);
 
             usedList.forEach(item => {
@@ -298,12 +292,12 @@
                 div.className = "flex items-center gap-4 bg-zinc-800 p-3 rounded-2xl";
                 div.innerHTML = `
                     <div class="w-10 h-10 rounded-xl flex-shrink-0" style="background-color: ${item.hex}"></div>
-                    <div class="flex-1">
-                        <div class="font-medium">${item.name}</div>
+                    <div class="flex-1 min-w-0">
+                        <div class="font-medium truncate">${item.name}</div>
                         <div class="font-mono text-xs text-zinc-400">${item.hex}</div>
                     </div>
                     <div class="text-right">
-                        <div class="font-bold text-lg">${item.count.toLocaleString()}</div>
+                        <div class="font-bold text-lg">${item.count}</div>
                         <div class="text-xs text-zinc-400">${item.percent}%</div>
                     </div>
                 `;
@@ -311,9 +305,9 @@
             });
 
             document.getElementById("total-dots").textContent = totalDots.toLocaleString() + " ドット";
+            document.getElementById("used-color-count").textContent = usedList.length + " / 24";
         }
 
-        // ガイド線描画（変更なし）
         function drawWithGrid(w, h) {
             const canvas = document.getElementById("pixel-canvas");
             const scale = Math.max(1, Math.floor(520 / Math.max(w, h)));
@@ -324,34 +318,24 @@
             ctx.imageSmoothingEnabled = false;
             ctx.drawImage(resultCanvas, 0, 0, canvas.width, canvas.height);
 
-            ctx.strokeStyle = "rgba(255, 255, 255, 0.13)";
+            // 1ドット線
+            ctx.strokeStyle = "rgba(255,255,255,0.13)";
             ctx.lineWidth = 1;
             for (let x = 1; x < w; x++) {
-                ctx.beginPath();
-                ctx.moveTo(x * scale, 0);
-                ctx.lineTo(x * scale, canvas.height);
-                ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(x*scale, 0); ctx.lineTo(x*scale, canvas.height); ctx.stroke();
             }
             for (let y = 1; y < h; y++) {
-                ctx.beginPath();
-                ctx.moveTo(0, y * scale);
-                ctx.lineTo(canvas.width, y * scale);
-                ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0, y*scale); ctx.lineTo(canvas.width, y*scale); ctx.stroke();
             }
 
-            ctx.strokeStyle = "rgba(255, 255, 255, 0.6)";
+            // 10ドット濃線
+            ctx.strokeStyle = "rgba(255,255,255,0.6)";
             ctx.lineWidth = 2;
             for (let x = 10; x < w; x += 10) {
-                ctx.beginPath();
-                ctx.moveTo(x * scale + 0.5, 0);
-                ctx.lineTo(x * scale + 0.5, canvas.height);
-                ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(x*scale + 0.5, 0); ctx.lineTo(x*scale + 0.5, canvas.height); ctx.stroke();
             }
             for (let y = 10; y < h; y += 10) {
-                ctx.beginPath();
-                ctx.moveTo(0, y * scale + 0.5);
-                ctx.lineTo(canvas.width, y * scale + 0.5);
-                ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0, y*scale + 0.5); ctx.lineTo(canvas.width, y*scale + 0.5); ctx.stroke();
             }
         }
 
@@ -369,45 +353,34 @@
             ctx.imageSmoothingEnabled = false;
             ctx.drawImage(resultCanvas, 0, 0, downloadCanvas.width, downloadCanvas.height);
 
-            ctx.strokeStyle = "rgba(255, 255, 255, 0.13)";
+            ctx.strokeStyle = "rgba(255,255,255,0.13)";
             ctx.lineWidth = 1 / scale;
             for (let x = 1; x < w; x++) {
-                ctx.beginPath();
-                ctx.moveTo(x * scale, 0);
-                ctx.lineTo(x * scale, downloadCanvas.height);
-                ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(x*scale, 0); ctx.lineTo(x*scale, downloadCanvas.height); ctx.stroke();
             }
             for (let y = 1; y < h; y++) {
-                ctx.beginPath();
-                ctx.moveTo(0, y * scale);
-                ctx.lineTo(downloadCanvas.width, y * scale);
-                ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0, y*scale); ctx.lineTo(downloadCanvas.width, y*scale); ctx.stroke();
             }
 
-            ctx.strokeStyle = "rgba(255, 255, 255, 0.65)";
+            ctx.strokeStyle = "rgba(255,255,255,0.65)";
             ctx.lineWidth = 2 / scale;
             for (let x = 10; x < w; x += 10) {
-                ctx.beginPath();
-                ctx.moveTo(x * scale + 0.5, 0);
-                ctx.lineTo(x * scale + 0.5, downloadCanvas.height);
-                ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(x*scale + 0.5, 0); ctx.lineTo(x*scale + 0.5, downloadCanvas.height); ctx.stroke();
             }
             for (let y = 10; y < h; y += 10) {
-                ctx.beginPath();
-                ctx.moveTo(0, y * scale + 0.5);
-                ctx.lineTo(downloadCanvas.width, y * scale + 0.5);
-                ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0, y*scale + 0.5); ctx.lineTo(downloadCanvas.width, y*scale + 0.5); ctx.stroke();
             }
 
             const link = document.createElement("a");
-            link.download = `dot-art_with-grid_${Date.now()}.png`;
+            link.download = `dot-art_${Date.now()}.png`;
             link.href = downloadCanvas.toDataURL("image/png");
             link.click();
         }
 
-        window.onload = () => {
+        // 起動処理
+        window.onload = function() {
             loadDefaultPalette();
-            updateHeightFromRatio();
+            updateHeightFromRatio();   // これでエラー解消
         };
     </script>
 </body>
