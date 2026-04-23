@@ -15,16 +15,16 @@
 <body class="bg-zinc-950 text-white min-h-screen">
     <div class="max-w-7xl mx-auto p-4 md:p-8">
         <h1 class="text-3xl md:text-4xl font-bold mb-8 text-center md:text-left">
-            ドット絵変換ツール <span class="text-cyan-400">ぽこあポケモン</span>
+            ドット絵変換ツール <span class="text-cyan-400">24色カスタム</span>
         </h1>
 
         <div class="flex flex-col lg:flex-row gap-6">
             <!-- パレット -->
             <div class="w-full lg:w-96 bg-zinc-900 rounded-3xl p-5 border border-zinc-800">
-                <h2 class="text-lg font-semibold mb-4">🎨 カスタム23色パレット</h2>
+                <h2 class="text-lg font-semibold mb-4">🎨 24色パレット</h2>
                 <button onclick="loadDefaultPalette()" 
                         class="w-full py-4 bg-gradient-to-r from-violet-500 to-cyan-400 rounded-2xl font-semibold mb-6">
-                    23色パレットを読み込む
+                    24色パレットを読み込む
                 </button>
                 <div id="palette-list" class="grid grid-cols-6 gap-3"></div>
             </div>
@@ -82,21 +82,11 @@
                 </div>
 
                 <div id="result-area" class="hidden bg-zinc-900 rounded-3xl p-5 border border-zinc-800">
-                    <h2 class="text-2xl font-bold mb-6">変換結果</h2>
+                    <h2 class="text-2xl font-bold mb-6">変換結果（数字入り凡例）</h2>
                     <div class="flex flex-col lg:flex-row gap-8">
                         <div class="lg:w-80 flex-shrink-0">
-                            <h3 class="font-semibold mb-4">使用した色（多い順）</h3>
+                            <h3 class="font-semibold mb-4">凡例（使用数多い順）</h3>
                             <div id="used-colors-list" class="space-y-3 max-h-[420px] overflow-y-auto"></div>
-                            <div class="mt-6 pt-4 border-t border-zinc-700 text-sm">
-                                <div class="flex justify-between">
-                                    <span class="text-zinc-400">合計ドット数</span>
-                                    <span id="total-dots" class="font-mono font-bold"></span>
-                                </div>
-                                <div class="flex justify-between mt-2">
-                                    <span class="text-zinc-400">使用色数</span>
-                                    <span id="used-color-count" class="font-mono font-bold"></span>
-                                </div>
-                            </div>
                         </div>
                         <div class="flex-1">
                             <canvas id="pixel-canvas" class="bg-zinc-950 rounded-2xl w-full"></canvas>
@@ -104,7 +94,7 @@
                     </div>
 
                     <button onclick="downloadPNG()" class="mt-8 w-full py-4 bg-gradient-to-r from-amber-400 to-yellow-300 text-zinc-900 font-bold rounded-3xl text-lg">
-                        📥 PNGダウンロード（ガイド線あり）
+                        📥 PNGダウンロード（数字入り）
                     </button>
                 </div>
             </div>
@@ -116,37 +106,38 @@
         let resultCanvas = null;
         let paletteWithNames = [];
 
-        // ====================== 提供された23色 ======================
+        // ====================== ユーザーが指定した24色 ======================
         const defaultPalette = [
-            { name: "てつのタイル(白)", hex: "#D6D3CF" },
-            { name: "てつのタイル(赤)", hex: "#AF5A49" },
-            { name: "てつのタイル(青)", hex: "#4B7FC8" },
-            { name: "てつのタイル(黄)", hex: "#C59A49" },
-            { name: "てつのタイル(緑)", hex: "#3B964C" },
-            { name: "てつのタイル(緑+水)", hex: "#54B89E" },
-            { name: "てつのタイル(赤+黄)", hex: "#B7703E" },
-            { name: "てつのタイル(桃+青)", hex: "#8758B5" },
-            { name: "てつのタイル(赤+緑)", hex: "#8A664F" },
-            { name: "てつのタイル(水)", hex: "#9BB9D3" },
-            { name: "てつのタイル(赤+桃)", hex: "#D98ABB" },
-            { name: "てつのタイル(緑+黄)", hex: "#88A058" },
-            { name: "てつのタイル(白+黒)", hex: "#B7B4BB" },
-            { name: "てつのタイル(赤+青)", hex: "#5A63A3" },
-            { name: "てつのタイル(青+黒)", hex: "#475C8E" },
-            { name: "てつのタイル(黒)", hex: "#5D6878" },
-            { name: "てつのタイル(青+白)", hex: "#92A5B7" },
-            { name: "てつのタイル(桃)", hex: "#D7A8C5" },
-
+            { name: "シンプルなゆか(黒)", hex: "#434B59" },
+            { name: "シンプルなゆか(白+黒)", hex: "#A8A28F" },
+            { name: "シンプルなゆか(白)", hex: "#D3D7DE" },
             { name: "しっくいのかべ(白)", hex: "#E9E7E3" },
-            { name: "ざらざらカベ(白)", hex: "#E7E7E8" },
-            { name: "てっぱん(白)", hex: "#DCE4EC" },
-            { name: "シンプルなゆか(白)", hex: "#D3D7DE" }
+            { name: "シンプルなゆか(赤)", hex: "#B2403B" },
+            { name: "シンプルなゆか(赤+黄)", hex: "#E3873C" },
+            { name: "シンプルなゆか(黄)", hex: "#DCCD2B" },
+            { name: "シンプルなゆか(桃)", hex: "#E0B1C8" },
+            { name: "シンプルなゆか(緑)", hex: "#34BE41" },
+            { name: "シンプルなゆか(緑+水)", hex: "#48C4B6" },
+            { name: "シンプルなゆか(緑+黄)", hex: "#A7C433" },
+            { name: "しっくいのかべ(緑)", hex: "#A9E2A8" },
+            { name: "シンプルなゆか(青)", hex: "#3EA2C9" },
+            { name: "シンプルなゆか(青+黒)", hex: "#3E6FC0" },
+            { name: "シンプルなゆか(青+白)", hex: "#7EA4C0" },
+            { name: "シンプルなゆか(水)", hex: "#A4BDE2" },
+            { name: "シンプルなゆか(赤+青)", hex: "#604F99" },
+            { name: "シンプルなゆか(桃+青)", hex: "#A061C2" },
+            { name: "シンプルなゆか(赤+桃)", hex: "#D87BB7" },
+            { name: "しっくいのかべ(桃+青)", hex: "#DCD4EA" },
+            { name: "シンプルなゆか(赤+緑)", hex: "#B57943" },
+            { name: "てつのタイル(赤)", hex: "#AF5A49" },
+            { name: "てっぱん(緑+水)", hex: "#74D5CF" },
+            { name: "てつのタイル(黄)", hex: "#C59A49" }
         ];
 
         function loadDefaultPalette() {
             paletteWithNames = [...defaultPalette];
             renderPalette();
-            alert("✅ 23色カスタムパレットを読み込みました！");
+            alert("✅ 指定された24色パレットを読み込みました！");
         }
 
         function renderPalette() {
@@ -157,13 +148,13 @@
                 div.className = "flex flex-col items-center text-center";
                 div.innerHTML = `
                     <div class="w-9 h-9 rounded-xl shadow-inner mb-1" style="background-color: ${item.hex}"></div>
-                    <div class="text-[9px] leading-tight text-center">${item.name}</div>
+                    <div class="text-[9px] leading-tight">${item.name}</div>
                 `;
                 container.appendChild(div);
             });
         }
 
-        // 以下は前回と同じ機能（アップロード、変換、ガイド線、使用色表示など）
+        // アップロード関連（省略せず記載）
         function handleImageUpload(file) {
             if (!file || !file.type.startsWith("image/")) return alert("画像ファイルを選択してください");
             const reader = new FileReader();
@@ -241,12 +232,13 @@
             let imageData = ctx.getImageData(0, 0, w, h);
             let data = imageData.data;
 
-            const paletteRgb = paletteWithNames.map(item => ({
+            const paletteRgb = paletteWithNames.map((item, index) => ({
                 r: parseInt(item.hex.slice(1,3),16),
                 g: parseInt(item.hex.slice(3,5),16),
                 b: parseInt(item.hex.slice(5,7),16),
                 hex: item.hex,
-                name: item.name
+                name: item.name,
+                index: index
             }));
 
             const colorCount = new Map();
@@ -271,7 +263,7 @@
             resultCanvas = tempCanvas;
 
             showUsedColors(colorCount, w * h);
-            drawWithGrid(w, h);
+            drawWithNumbers(w, h);
             document.getElementById("result-area").classList.remove("hidden");
         }
 
@@ -279,9 +271,10 @@
             const container = document.getElementById("used-colors-list");
             container.innerHTML = "";
 
-            let usedList = paletteWithNames.map(item => ({
+            let usedList = paletteWithNames.map((item, idx) => ({
                 name: item.name,
                 hex: item.hex,
+                index: idx,
                 count: colorCount.get(item.hex) || 0,
                 percent: totalDots > 0 ? ((colorCount.get(item.hex) || 0) / totalDots * 100).toFixed(1) : 0
             })).filter(item => item.count > 0);
@@ -292,7 +285,8 @@
                 const div = document.createElement("div");
                 div.className = "flex items-center gap-4 bg-zinc-800 p-3 rounded-2xl";
                 div.innerHTML = `
-                    <div class="w-10 h-10 rounded-xl flex-shrink-0" style="background-color: ${item.hex}"></div>
+                    <div class="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold text-white bg-black/40" 
+                         style="background-color: ${item.hex}">${item.index}</div>
                     <div class="flex-1">
                         <div class="font-medium">${item.name}</div>
                         <div class="font-mono text-xs text-zinc-400">${item.hex}</div>
@@ -306,10 +300,11 @@
             });
 
             document.getElementById("total-dots").textContent = totalDots.toLocaleString() + " ドット";
-            document.getElementById("used-color-count").textContent = usedList.length + " / 23";
+            document.getElementById("used-color-count").textContent = usedList.length + " / 24";
         }
 
-        function drawWithGrid(w, h) {
+        // 各ドットに番号を描画
+        function drawWithNumbers(w, h) {
             const canvas = document.getElementById("pixel-canvas");
             const scale = Math.max(1, Math.floor(520 / Math.max(w, h)));
             canvas.width = w * scale;
@@ -319,22 +314,33 @@
             ctx.imageSmoothingEnabled = false;
             ctx.drawImage(resultCanvas, 0, 0, canvas.width, canvas.height);
 
-            ctx.strokeStyle = "rgba(255,255,255,0.13)";
-            ctx.lineWidth = 1;
-            for (let x = 1; x < w; x++) {
-                ctx.beginPath(); ctx.moveTo(x*scale, 0); ctx.lineTo(x*scale, canvas.height); ctx.stroke();
-            }
-            for (let y = 1; y < h; y++) {
-                ctx.beginPath(); ctx.moveTo(0, y*scale); ctx.lineTo(canvas.width, y*scale); ctx.stroke();
-            }
+            ctx.fillStyle = "rgba(255,255,255,0.95)";
+            ctx.font = `bold ${Math.floor(scale * 0.65)}px sans-serif`;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
 
-            ctx.strokeStyle = "rgba(255,255,255,0.6)";
-            ctx.lineWidth = 2;
-            for (let x = 10; x < w; x += 10) {
-                ctx.beginPath(); ctx.moveTo(x*scale + 0.5, 0); ctx.lineTo(x*scale + 0.5, canvas.height); ctx.stroke();
-            }
-            for (let y = 10; y < h; y += 10) {
-                ctx.beginPath(); ctx.moveTo(0, y*scale + 0.5); ctx.lineTo(canvas.width, y*scale + 0.5); ctx.stroke();
+            const tempData = resultCanvas.getContext("2d").getImageData(0, 0, w, h);
+
+            for (let y = 0; y < h; y++) {
+                for (let x = 0; x < w; x++) {
+                    const idx = (y * w + x) * 4;
+                    const r = tempData.data[idx];
+                    const g = tempData.data[idx + 1];
+                    const b = tempData.data[idx + 2];
+
+                    let num = 0;
+                    for (let i = 0; i < paletteWithNames.length; i++) {
+                        const p = paletteWithNames[i];
+                        if (Math.abs(r - parseInt(p.hex.slice(1,3),16)) < 12 &&
+                            Math.abs(g - parseInt(p.hex.slice(3,5),16)) < 12 &&
+                            Math.abs(b - parseInt(p.hex.slice(5,7),16)) < 12) {
+                            num = i;
+                            break;
+                        }
+                    }
+
+                    ctx.fillText(num.toString(), (x + 0.5) * scale, (y + 0.5) * scale);
+                }
             }
         }
 
@@ -342,7 +348,7 @@
             if (!resultCanvas) return;
             const w = resultCanvas.width;
             const h = resultCanvas.height;
-            const scale = 8;
+            const scale = 10; // 高解像度で保存
 
             const downloadCanvas = document.createElement("canvas");
             downloadCanvas.width = w * scale;
@@ -352,26 +358,34 @@
             ctx.imageSmoothingEnabled = false;
             ctx.drawImage(resultCanvas, 0, 0, downloadCanvas.width, downloadCanvas.height);
 
-            ctx.strokeStyle = "rgba(255,255,255,0.13)";
-            ctx.lineWidth = 1 / scale;
-            for (let x = 1; x < w; x++) {
-                ctx.beginPath(); ctx.moveTo(x*scale, 0); ctx.lineTo(x*scale, downloadCanvas.height); ctx.stroke();
-            }
-            for (let y = 1; y < h; y++) {
-                ctx.beginPath(); ctx.moveTo(0, y*scale); ctx.lineTo(downloadCanvas.width, y*scale); ctx.stroke();
-            }
+            ctx.fillStyle = "rgba(255,255,255,0.9)";
+            ctx.font = `bold ${Math.floor(scale * 0.55)}px sans-serif`;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
 
-            ctx.strokeStyle = "rgba(255,255,255,0.65)";
-            ctx.lineWidth = 2 / scale;
-            for (let x = 10; x < w; x += 10) {
-                ctx.beginPath(); ctx.moveTo(x*scale + 0.5, 0); ctx.lineTo(x*scale + 0.5, downloadCanvas.height); ctx.stroke();
-            }
-            for (let y = 10; y < h; y += 10) {
-                ctx.beginPath(); ctx.moveTo(0, y*scale + 0.5); ctx.lineTo(downloadCanvas.width, y*scale + 0.5); ctx.stroke();
+            const tempData = resultCanvas.getContext("2d").getImageData(0, 0, w, h);
+
+            for (let y = 0; y < h; y++) {
+                for (let x = 0; x < w; x++) {
+                    const idx = (y * w + x) * 4;
+                    const r = tempData.data[idx], g = tempData.data[idx+1], b = tempData.data[idx+2];
+
+                    let num = 0;
+                    for (let i = 0; i < paletteWithNames.length; i++) {
+                        const p = paletteWithNames[i];
+                        if (Math.abs(r - parseInt(p.hex.slice(1,3),16)) < 12 &&
+                            Math.abs(g - parseInt(p.hex.slice(3,5),16)) < 12 &&
+                            Math.abs(b - parseInt(p.hex.slice(5,7),16)) < 12) {
+                            num = i;
+                            break;
+                        }
+                    }
+                    ctx.fillText(num.toString(), (x + 0.5) * scale, (y + 0.5) * scale);
+                }
             }
 
             const link = document.createElement("a");
-            link.download = `dot-art_${Date.now()}.png`;
+            link.download = `dot-art_numbers_${Date.now()}.png`;
             link.href = downloadCanvas.toDataURL("image/png");
             link.click();
         }
