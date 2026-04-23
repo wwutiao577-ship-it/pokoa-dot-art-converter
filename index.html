@@ -15,13 +15,13 @@
 <body class="bg-zinc-950 text-white min-h-screen">
     <div class="max-w-7xl mx-auto p-4 md:p-8">
         <h1 class="text-3xl md:text-4xl font-bold mb-8 text-center md:text-left">
-            ドット絵変換ツール <span class="text-cyan-400">23色カスタム（ぽこあポケモン）</span>
+            ドット絵変換ツール <span class="text-cyan-400">ぽこあポケモン</span>
         </h1>
 
         <div class="flex flex-col lg:flex-row gap-6">
             <!-- パレット -->
             <div class="w-full lg:w-96 bg-zinc-900 rounded-3xl p-5 border border-zinc-800">
-                <h2 class="text-lg font-semibold mb-4">🎨 23色パレット（カスタム）</h2>
+                <h2 class="text-lg font-semibold mb-4">🎨 カスタム23色パレット</h2>
                 <button onclick="loadDefaultPalette()" 
                         class="w-full py-4 bg-gradient-to-r from-violet-500 to-cyan-400 rounded-2xl font-semibold mb-6">
                     23色パレットを読み込む
@@ -116,31 +116,31 @@
         let resultCanvas = null;
         let paletteWithNames = [];
 
-        // ====================== ユーザーカスタム 23色 ======================
+        // ====================== 提供された23色 ======================
         const defaultPalette = [
-            { name: "シンプルなゆか(黒)", hex: "#14183C" },
-            { name: "シンプルなゆか(赤+緑)", hex: "#3C2345" },
-            { name: "シンプルなゆか(赤+黄)", hex: "#6A2D2C" },
-            { name: "シンプルなゆか(赤)", hex: "#530020" },
-            { name: "てっぱん(緑+黄)", hex: "#4B5863" },
-            { name: "シンプルなゆか(黄)", hex: "#726221" },
-            { name: "おうごんのかべ", hex: "#5A4650" },
-            { name: "シンプルなゆか(緑+黄)", hex: "#435A25" },
-            { name: "シンプルなゆか(緑)", hex: "#005631" },
-            { name: "てっぱん(赤)", hex: "#5B4A6E" },
-            { name: "シンプルなゆか(無彩色)", hex: "#595EA7" },
-            { name: "てつのタイル(黒)", hex: "#222651" },
-            { name: "シンプルなゆか(青+白)", hex: "#314B9E" },
-            { name: "シンプルなゆか(緑+水)", hex: "#0E567E" },
-            { name: "シンプルなゆか(青)", hex: "#0C4592" },
-            { name: "シンプルなゆか(桃+青)", hex: "#43268C" },
-            { name: "シンプルなゆか(赤+桃)", hex: "#6E358E" },
-            { name: "シンプルなゆか(桃)", hex: "#72509C" },
-            { name: "てつのタイル(赤)", hex: "#3E112E" },
-            { name: "てっぱん(白)", hex: "#646399" },
-            { name: "てっぱん(桃)", hex: "#6556A3" },
-            { name: "てつのタイル(白)", hex: "#57598F" },
-            { name: "シンプルなゆか(白)", hex: "#52579C" }
+            { name: "てつのタイル(白)", hex: "#D6D3CF" },
+            { name: "てつのタイル(赤)", hex: "#AF5A49" },
+            { name: "てつのタイル(青)", hex: "#4B7FC8" },
+            { name: "てつのタイル(黄)", hex: "#C59A49" },
+            { name: "てつのタイル(緑)", hex: "#3B964C" },
+            { name: "てつのタイル(緑+水)", hex: "#54B89E" },
+            { name: "てつのタイル(赤+黄)", hex: "#B7703E" },
+            { name: "てつのタイル(桃+青)", hex: "#8758B5" },
+            { name: "てつのタイル(赤+緑)", hex: "#8A664F" },
+            { name: "てつのタイル(水)", hex: "#9BB9D3" },
+            { name: "てつのタイル(赤+桃)", hex: "#D98ABB" },
+            { name: "てつのタイル(緑+黄)", hex: "#88A058" },
+            { name: "てつのタイル(白+黒)", hex: "#B7B4BB" },
+            { name: "てつのタイル(赤+青)", hex: "#5A63A3" },
+            { name: "てつのタイル(青+黒)", hex: "#475C8E" },
+            { name: "てつのタイル(黒)", hex: "#5D6878" },
+            { name: "てつのタイル(青+白)", hex: "#92A5B7" },
+            { name: "てつのタイル(桃)", hex: "#D7A8C5" },
+
+            { name: "しっくいのかべ(白)", hex: "#E9E7E3" },
+            { name: "ざらざらカベ(白)", hex: "#E7E7E8" },
+            { name: "てっぱん(白)", hex: "#DCE4EC" },
+            { name: "シンプルなゆか(白)", hex: "#D3D7DE" }
         ];
 
         function loadDefaultPalette() {
@@ -163,7 +163,7 @@
             });
         }
 
-        // アップロード・変換・ガイド線などの機能（完全版）
+        // 以下は前回と同じ機能（アップロード、変換、ガイド線、使用色表示など）
         function handleImageUpload(file) {
             if (!file || !file.type.startsWith("image/")) return alert("画像ファイルを選択してください");
             const reader = new FileReader();
@@ -258,7 +258,10 @@
 
                 for (let col of paletteRgb) {
                     const dist = (r-col.r)**2 + (g-col.g)**2 + (b-col.b)**2;
-                    if (dist < minDist) { minDist = dist; best = col; }
+                    if (dist < minDist) {
+                        minDist = dist;
+                        best = col;
+                    }
                 }
                 data[i] = best.r; data[i+1] = best.g; data[i+2] = best.b;
                 colorCount.set(best.hex, (colorCount.get(best.hex) || 0) + 1);
