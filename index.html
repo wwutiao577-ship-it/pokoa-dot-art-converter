@@ -3,40 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ドット絵変換ツール - 企業ロゴ向け</title>
+    <title>ドット絵変換ツール - ぽこあポケモン</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
     <style>
         body { font-family: 'Noto Sans JP', system-ui, sans-serif; }
         canvas { image-rendering: pixelated; }
-        .swatch { transition: all 0.2s; }
     </style>
 </head>
 <body class="bg-zinc-950 text-white min-h-screen">
     <div class="max-w-7xl mx-auto p-4 md:p-8">
         <h1 class="text-3xl md:text-4xl font-bold mb-8 text-center md:text-left">
-            ドット絵変換ツール <span class="text-cyan-400">24色・企業ロゴ向け</span>
+            ドット絵変換ツール <span class="text-cyan-400">23色カスタム（ぽこあポケモン）</span>
         </h1>
 
         <div class="flex flex-col lg:flex-row gap-6">
             <!-- パレット -->
             <div class="w-full lg:w-96 bg-zinc-900 rounded-3xl p-5 border border-zinc-800">
-                <h2 class="text-lg font-semibold mb-4">🎨 24色パレット</h2>
+                <h2 class="text-lg font-semibold mb-4">🎨 23色パレット（カスタム）</h2>
                 <button onclick="loadDefaultPalette()" 
                         class="w-full py-4 bg-gradient-to-r from-violet-500 to-cyan-400 rounded-2xl font-semibold mb-6">
-                    24色パレットを読み込む
+                    23色パレットを読み込む
                 </button>
                 <div id="palette-list" class="grid grid-cols-6 gap-3"></div>
             </div>
 
             <!-- メイン -->
             <div class="flex-1 space-y-6">
-                <!-- アップロード -->
                 <div class="bg-zinc-900 rounded-3xl p-5 border border-zinc-800">
                     <h2 class="text-lg font-semibold mb-3">📤 画像アップロード</h2>
-                    <div id="upload-area" 
-                         class="border-2 border-dashed border-zinc-700 hover:border-cyan-400 rounded-3xl p-10 md:p-16 text-center cursor-pointer min-h-[180px] flex items-center justify-center">
+                    <div id="upload-area" class="border-2 border-dashed border-zinc-700 hover:border-cyan-400 rounded-3xl p-10 md:p-16 text-center cursor-pointer min-h-[180px]">
                         <input type="file" id="image-upload" accept="image/*" class="hidden">
                         <div id="upload-placeholder" class="text-zinc-400">
                             画像をドラッグ＆ドロップ<br>または タップして選択
@@ -44,14 +41,12 @@
                     </div>
                 </div>
 
-                <!-- クロップ -->
                 <div id="crop-section" class="hidden bg-zinc-900 rounded-3xl p-5 border border-zinc-800">
                     <h2 class="text-lg font-semibold mb-4">✂️ トリミング・調整</h2>
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
                         <div>
                             <label class="block text-xs text-zinc-400 mb-1">縦横比率</label>
-                            <select id="aspect-ratio" onchange="applyAspectRatio()" 
-                                    class="w-full bg-zinc-800 text-white px-4 py-3 rounded-2xl">
+                            <select id="aspect-ratio" onchange="applyAspectRatio()" class="w-full bg-zinc-800 text-white px-4 py-3 rounded-2xl">
                                 <option value="1">1 : 1</option>
                                 <option value="16/9">16 : 9</option>
                                 <option value="9/16">9 : 16</option>
@@ -62,8 +57,7 @@
                         </div>
                         <div>
                             <label class="block text-xs text-zinc-400 mb-1">横ドット数</label>
-                            <select id="dot-width" onchange="updateHeightFromRatio()" 
-                                    class="w-full bg-zinc-800 text-white px-4 py-3 rounded-2xl">
+                            <select id="dot-width" onchange="updateHeightFromRatio()" class="w-full bg-zinc-800 text-white px-4 py-3 rounded-2xl">
                                 <option value="32" selected>32</option>
                                 <option value="48">48</option>
                                 <option value="64">64</option>
@@ -73,8 +67,7 @@
                         </div>
                         <div>
                             <label class="block text-xs text-zinc-400 mb-1">縦ドット数</label>
-                            <div id="dot-height-display" 
-                                 class="bg-zinc-800 px-4 py-3 rounded-2xl text-2xl font-mono text-center">32</div>
+                            <div id="dot-height-display" class="bg-zinc-800 px-4 py-3 rounded-2xl text-2xl font-mono text-center">32</div>
                         </div>
                     </div>
 
@@ -83,14 +76,11 @@
                     </div>
 
                     <div class="flex gap-3 mt-6">
-                        <button onclick="resetCrop()" 
-                                class="flex-1 py-4 border border-zinc-600 rounded-2xl">リセット</button>
-                        <button onclick="applyCropAndConvert()" 
-                                class="flex-1 py-4 bg-white text-zinc-900 rounded-2xl font-semibold">ドット絵に変換</button>
+                        <button onclick="resetCrop()" class="flex-1 py-4 border border-zinc-600 rounded-2xl">リセット</button>
+                        <button onclick="applyCropAndConvert()" class="flex-1 py-4 bg-white text-zinc-900 rounded-2xl font-semibold">ドット絵に変換</button>
                     </div>
                 </div>
 
-                <!-- 結果 -->
                 <div id="result-area" class="hidden bg-zinc-900 rounded-3xl p-5 border border-zinc-800">
                     <h2 class="text-2xl font-bold mb-6">変換結果</h2>
                     <div class="flex flex-col lg:flex-row gap-8">
@@ -113,8 +103,7 @@
                         </div>
                     </div>
 
-                    <button onclick="downloadPNG()" 
-                            class="mt-8 w-full py-4 bg-gradient-to-r from-amber-400 to-yellow-300 text-zinc-900 font-bold rounded-3xl text-lg">
+                    <button onclick="downloadPNG()" class="mt-8 w-full py-4 bg-gradient-to-r from-amber-400 to-yellow-300 text-zinc-900 font-bold rounded-3xl text-lg">
                         📥 PNGダウンロード（ガイド線あり）
                     </button>
                 </div>
@@ -127,20 +116,37 @@
         let resultCanvas = null;
         let paletteWithNames = [];
 
+        // ====================== ユーザーカスタム 23色 ======================
         const defaultPalette = [
-            { name: "黒①", hex: "#0a0a0a" }, { name: "黒②", hex: "#1f1f1f" }, { name: "暗影", hex: "#2f2f2f" },
-            { name: "影", hex: "#454545" }, { name: "中間影", hex: "#6b6b6b" }, { name: "中間", hex: "#9a9a9a" },
-            { name: "ライト", hex: "#c8c8c8" }, { name: "白", hex: "#f0f0f0" },
-            { name: "肌影", hex: "#c88a5f" }, { name: "肌", hex: "#e9b98a" }, { name: "肌ハイ", hex: "#ffe8c8" },
-            { name: "赤", hex: "#d93d3d" }, { name: "赤深", hex: "#b22a2a" }, { name: "橙", hex: "#ff8f3d" },
-            { name: "緑影", hex: "#2e7a4f" }, { name: "緑", hex: "#5cc46f" }, { name: "黄緑", hex: "#a5e87a" },
-            { name: "青影", hex: "#2a5f9e" }, { name: "青", hex: "#3a8cff" }, { name: "水色", hex: "#6ed5ff" },
-            { name: "紫", hex: "#a76eff" }, { name: "紫淡", hex: "#c99cff" }, { name: "ピンク", hex: "#ff8ac4" }
+            { name: "シンプルなゆか(黒)", hex: "#14183C" },
+            { name: "シンプルなゆか(赤+緑)", hex: "#3C2345" },
+            { name: "シンプルなゆか(赤+黄)", hex: "#6A2D2C" },
+            { name: "シンプルなゆか(赤)", hex: "#530020" },
+            { name: "てっぱん(緑+黄)", hex: "#4B5863" },
+            { name: "シンプルなゆか(黄)", hex: "#726221" },
+            { name: "おうごんのかべ", hex: "#5A4650" },
+            { name: "シンプルなゆか(緑+黄)", hex: "#435A25" },
+            { name: "シンプルなゆか(緑)", hex: "#005631" },
+            { name: "てっぱん(赤)", hex: "#5B4A6E" },
+            { name: "シンプルなゆか(無彩色)", hex: "#595EA7" },
+            { name: "てつのタイル(黒)", hex: "#222651" },
+            { name: "シンプルなゆか(青+白)", hex: "#314B9E" },
+            { name: "シンプルなゆか(緑+水)", hex: "#0E567E" },
+            { name: "シンプルなゆか(青)", hex: "#0C4592" },
+            { name: "シンプルなゆか(桃+青)", hex: "#43268C" },
+            { name: "シンプルなゆか(赤+桃)", hex: "#6E358E" },
+            { name: "シンプルなゆか(桃)", hex: "#72509C" },
+            { name: "てつのタイル(赤)", hex: "#3E112E" },
+            { name: "てっぱん(白)", hex: "#646399" },
+            { name: "てっぱん(桃)", hex: "#6556A3" },
+            { name: "てつのタイル(白)", hex: "#57598F" },
+            { name: "シンプルなゆか(白)", hex: "#52579C" }
         ];
 
         function loadDefaultPalette() {
             paletteWithNames = [...defaultPalette];
             renderPalette();
+            alert("✅ 23色カスタムパレットを読み込みました！");
         }
 
         function renderPalette() {
@@ -151,17 +157,15 @@
                 div.className = "flex flex-col items-center text-center";
                 div.innerHTML = `
                     <div class="w-9 h-9 rounded-xl shadow-inner mb-1" style="background-color: ${item.hex}"></div>
-                    <div class="text-[9px] leading-tight">${item.name}</div>
+                    <div class="text-[9px] leading-tight text-center">${item.name}</div>
                 `;
                 container.appendChild(div);
             });
         }
 
+        // アップロード・変換・ガイド線などの機能（完全版）
         function handleImageUpload(file) {
-            if (!file || !file.type.startsWith("image/")) {
-                alert("画像ファイルを選択してください");
-                return;
-            }
+            if (!file || !file.type.startsWith("image/")) return alert("画像ファイルを選択してください");
             const reader = new FileReader();
             reader.onload = function(e) {
                 document.getElementById("upload-area").classList.add("hidden");
@@ -185,17 +189,14 @@
             reader.readAsDataURL(file);
         }
 
-        // アップロードイベント
-        document.getElementById("upload-area").addEventListener("click", () => {
-            document.getElementById("image-upload").click();
-        });
+        document.getElementById("upload-area").addEventListener("click", () => document.getElementById("image-upload").click());
         document.getElementById("image-upload").addEventListener("change", e => {
             if (e.target.files[0]) handleImageUpload(e.target.files[0]);
         });
 
         const uploadArea = document.getElementById("upload-area");
         uploadArea.addEventListener("dragover", e => { e.preventDefault(); uploadArea.style.borderColor = "#67e8f9"; });
-        uploadArea.addEventListener("dragleave", () => { uploadArea.style.borderColor = ""; });
+        uploadArea.addEventListener("dragleave", () => uploadArea.style.borderColor = "");
         uploadArea.addEventListener("drop", e => {
             e.preventDefault();
             uploadArea.style.borderColor = "";
@@ -256,11 +257,8 @@
                 const r = data[i], g = data[i+1], b = data[i+2];
 
                 for (let col of paletteRgb) {
-                    const dist = (r - col.r)**2 + (g - col.g)**2 + (b - col.b)**2;
-                    if (dist < minDist) {
-                        minDist = dist;
-                        best = col;
-                    }
+                    const dist = (r-col.r)**2 + (g-col.g)**2 + (b-col.b)**2;
+                    if (dist < minDist) { minDist = dist; best = col; }
                 }
                 data[i] = best.r; data[i+1] = best.g; data[i+2] = best.b;
                 colorCount.set(best.hex, (colorCount.get(best.hex) || 0) + 1);
@@ -292,8 +290,8 @@
                 div.className = "flex items-center gap-4 bg-zinc-800 p-3 rounded-2xl";
                 div.innerHTML = `
                     <div class="w-10 h-10 rounded-xl flex-shrink-0" style="background-color: ${item.hex}"></div>
-                    <div class="flex-1 min-w-0">
-                        <div class="font-medium truncate">${item.name}</div>
+                    <div class="flex-1">
+                        <div class="font-medium">${item.name}</div>
                         <div class="font-mono text-xs text-zinc-400">${item.hex}</div>
                     </div>
                     <div class="text-right">
@@ -305,7 +303,7 @@
             });
 
             document.getElementById("total-dots").textContent = totalDots.toLocaleString() + " ドット";
-            document.getElementById("used-color-count").textContent = usedList.length + " / 24";
+            document.getElementById("used-color-count").textContent = usedList.length + " / 23";
         }
 
         function drawWithGrid(w, h) {
@@ -318,7 +316,6 @@
             ctx.imageSmoothingEnabled = false;
             ctx.drawImage(resultCanvas, 0, 0, canvas.width, canvas.height);
 
-            // 1ドット線
             ctx.strokeStyle = "rgba(255,255,255,0.13)";
             ctx.lineWidth = 1;
             for (let x = 1; x < w; x++) {
@@ -328,7 +325,6 @@
                 ctx.beginPath(); ctx.moveTo(0, y*scale); ctx.lineTo(canvas.width, y*scale); ctx.stroke();
             }
 
-            // 10ドット濃線
             ctx.strokeStyle = "rgba(255,255,255,0.6)";
             ctx.lineWidth = 2;
             for (let x = 10; x < w; x += 10) {
@@ -377,10 +373,9 @@
             link.click();
         }
 
-        // 起動処理
-        window.onload = function() {
+        window.onload = () => {
             loadDefaultPalette();
-            updateHeightFromRatio();   // これでエラー解消
+            updateHeightFromRatio();
         };
     </script>
 </body>
