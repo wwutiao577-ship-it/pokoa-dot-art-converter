@@ -15,7 +15,7 @@
 <body class="bg-zinc-950 text-white min-h-screen">
     <div class="max-w-7xl mx-auto p-4 md:p-8">
         <h1 class="text-3xl md:text-4xl font-bold mb-8 text-center md:text-left">
-            ドット絵変換ツール <span class="text-cyan-400">24色カスタム</span>
+            ドット絵変換ツール <span class="text-cyan-400">ぽこあポケモン</span>
         </h1>
 
         <div class="flex flex-col lg:flex-row gap-6">
@@ -82,7 +82,7 @@
                 </div>
 
                 <div id="result-area" class="hidden bg-zinc-900 rounded-3xl p-5 border border-zinc-800">
-                    <h2 class="text-2xl font-bold mb-6">変換結果（数字入り凡例）</h2>
+                    <h2 class="text-2xl font-bold mb-6">変換結果（数字入り）</h2>
                     <div class="flex flex-col lg:flex-row gap-8">
                         <div class="lg:w-80 flex-shrink-0">
                             <h3 class="font-semibold mb-4">凡例（使用数多い順）</h3>
@@ -106,7 +106,6 @@
         let resultCanvas = null;
         let paletteWithNames = [];
 
-        // ====================== ユーザーが指定した24色 ======================
         const defaultPalette = [
             { name: "シンプルなゆか(黒)", hex: "#434B59" },
             { name: "シンプルなゆか(白+黒)", hex: "#A8A28F" },
@@ -137,7 +136,6 @@
         function loadDefaultPalette() {
             paletteWithNames = [...defaultPalette];
             renderPalette();
-            alert("✅ 指定された24色パレットを読み込みました！");
         }
 
         function renderPalette() {
@@ -154,7 +152,6 @@
             });
         }
 
-        // アップロード関連（省略せず記載）
         function handleImageUpload(file) {
             if (!file || !file.type.startsWith("image/")) return alert("画像ファイルを選択してください");
             const reader = new FileReader();
@@ -269,6 +266,8 @@
 
         function showUsedColors(colorCount, totalDots) {
             const container = document.getElementById("used-colors-list");
+            if (!container) return;
+
             container.innerHTML = "";
 
             let usedList = paletteWithNames.map((item, idx) => ({
@@ -285,7 +284,7 @@
                 const div = document.createElement("div");
                 div.className = "flex items-center gap-4 bg-zinc-800 p-3 rounded-2xl";
                 div.innerHTML = `
-                    <div class="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold text-white bg-black/40" 
+                    <div class="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold text-white" 
                          style="background-color: ${item.hex}">${item.index}</div>
                     <div class="flex-1">
                         <div class="font-medium">${item.name}</div>
@@ -299,11 +298,12 @@
                 container.appendChild(div);
             });
 
-            document.getElementById("total-dots").textContent = totalDots.toLocaleString() + " ドット";
-            document.getElementById("used-color-count").textContent = usedList.length + " / 24";
+            const totalEl = document.getElementById("total-dots");
+            const countEl = document.getElementById("used-color-count");
+            if (totalEl) totalEl.textContent = totalDots.toLocaleString() + " ドット";
+            if (countEl) countEl.textContent = usedList.length + " / 24";
         }
 
-        // 各ドットに番号を描画
         function drawWithNumbers(w, h) {
             const canvas = document.getElementById("pixel-canvas");
             const scale = Math.max(1, Math.floor(520 / Math.max(w, h)));
@@ -325,20 +325,19 @@
                 for (let x = 0; x < w; x++) {
                     const idx = (y * w + x) * 4;
                     const r = tempData.data[idx];
-                    const g = tempData.data[idx + 1];
-                    const b = tempData.data[idx + 2];
+                    const g = tempData.data[idx+1];
+                    const b = tempData.data[idx+2];
 
                     let num = 0;
                     for (let i = 0; i < paletteWithNames.length; i++) {
                         const p = paletteWithNames[i];
-                        if (Math.abs(r - parseInt(p.hex.slice(1,3),16)) < 12 &&
-                            Math.abs(g - parseInt(p.hex.slice(3,5),16)) < 12 &&
-                            Math.abs(b - parseInt(p.hex.slice(5,7),16)) < 12) {
+                        if (Math.abs(r - parseInt(p.hex.slice(1,3),16)) < 15 &&
+                            Math.abs(g - parseInt(p.hex.slice(3,5),16)) < 15 &&
+                            Math.abs(b - parseInt(p.hex.slice(5,7),16)) < 15) {
                             num = i;
                             break;
                         }
                     }
-
                     ctx.fillText(num.toString(), (x + 0.5) * scale, (y + 0.5) * scale);
                 }
             }
@@ -348,7 +347,7 @@
             if (!resultCanvas) return;
             const w = resultCanvas.width;
             const h = resultCanvas.height;
-            const scale = 10; // 高解像度で保存
+            const scale = 10;
 
             const downloadCanvas = document.createElement("canvas");
             downloadCanvas.width = w * scale;
@@ -373,9 +372,9 @@
                     let num = 0;
                     for (let i = 0; i < paletteWithNames.length; i++) {
                         const p = paletteWithNames[i];
-                        if (Math.abs(r - parseInt(p.hex.slice(1,3),16)) < 12 &&
-                            Math.abs(g - parseInt(p.hex.slice(3,5),16)) < 12 &&
-                            Math.abs(b - parseInt(p.hex.slice(5,7),16)) < 12) {
+                        if (Math.abs(r - parseInt(p.hex.slice(1,3),16)) < 15 &&
+                            Math.abs(g - parseInt(p.hex.slice(3,5),16)) < 15 &&
+                            Math.abs(b - parseInt(p.hex.slice(5,7),16)) < 15) {
                             num = i;
                             break;
                         }
